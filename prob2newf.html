@@ -3,6 +3,8 @@
 <head>
 <title>Autorickshaw Odyssey</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 
 body{
@@ -10,13 +12,15 @@ margin:0;
 overflow:hidden;
 background:#1b1b1b;
 font-family:Arial;
+touch-action:none;
 }
 
 /* GAME AREA */
 
 #game{
-width:400px;
-height:700px;
+width:100%;
+max-width:400px;
+height:70vh;
 background:#555;
 margin:auto;
 position:relative;
@@ -84,7 +88,7 @@ height:60px;
 background:yellow;
 position:absolute;
 bottom:20px;
-left:170px;
+left:45%;
 border-radius:10px;
 border-top:20px solid black;
 }
@@ -144,7 +148,7 @@ top:-80px;
 box-shadow:0 0 10px gold;
 }
 
-/* SCOREBOARD */
+/* SCORE */
 
 #scoreboard{
 color:white;
@@ -153,7 +157,7 @@ font-size:18px;
 margin-top:10px;
 }
 
-/* BUTTONS */
+/* MOBILE CONTROLS */
 
 #controls{
 text-align:center;
@@ -161,9 +165,11 @@ margin-top:10px;
 }
 
 button{
-font-size:18px;
-padding:10px 20px;
+font-size:22px;
+padding:15px 25px;
 margin:5px;
+border-radius:10px;
+border:none;
 }
 
 /* PAUSE TEXT */
@@ -194,18 +200,10 @@ Distance: <span id="distance">0</span>
 <div id="player"></div>
 <div id="pauseText">PAUSED</div>
 
-<!-- TREES -->
 <div class="tree" style="left:5px"></div>
-<div class="tree" style="left:370px"></div>
+<div class="tree" style="right:5px"></div>
 
-<!-- TRAFFIC SIGNAL -->
 <div class="signal" style="left:10px">
-<div class="light red"></div>
-<div class="light yellow"></div>
-<div class="light green"></div>
-</div>
-
-<div class="signal" style="right:10px">
 <div class="light red"></div>
 <div class="light yellow"></div>
 <div class="light green"></div>
@@ -214,9 +212,9 @@ Distance: <span id="distance">0</span>
 </div>
 
 <div id="controls">
-<button onclick="moveLeft()">⬅ LEFT</button>
-<button onclick="togglePause()">⏸ PAUSE</button>
-<button onclick="moveRight()">RIGHT ➡</button>
+<button ontouchstart="moveLeft()" onclick="moveLeft()">⬅</button>
+<button ontouchstart="togglePause()" onclick="togglePause()">⏸</button>
+<button ontouchstart="moveRight()" onclick="moveRight()">➡</button>
 </div>
 
 <script>
@@ -229,14 +227,14 @@ let score=0
 let distance=0
 let speed=3
 
-let playerX=170
+let playerX=160
 
 let cars=[]
 let coins=[]
 
 let paused=false
 
-let colors=["red","blue","orange","purple","cyan","pink"]
+let colors=["red","blue","orange","purple","cyan","pink","lime"]
 
 document.addEventListener("keydown",movePlayer)
 
@@ -256,7 +254,7 @@ function moveLeft(){
 if(paused)return
 
 if(playerX>0){
-playerX-=20
+playerX-=25
 player.style.left=playerX+"px"
 }
 
@@ -267,7 +265,7 @@ function moveRight(){
 if(paused)return
 
 if(playerX<340){
-playerX+=20
+playerX+=25
 player.style.left=playerX+"px"
 }
 
@@ -277,17 +275,13 @@ function togglePause(){
 
 paused=!paused
 
-if(paused){
-pauseText.style.display="block"
-}else{
-pauseText.style.display="none"
-}
+pauseText.style.display=paused?"block":"none"
 
 }
 
 function spawnObject(){
 
-let x=Math.random()*360
+let x=Math.random()*340
 
 if(Math.random()<0.7){
 
@@ -325,9 +319,6 @@ speed=3
 
 document.getElementById("score").innerText=0
 document.getElementById("distance").innerText=0
-
-playerX=170
-player.style.left=playerX+"px"
 
 cars.forEach(c=>c.remove())
 coins.forEach(c=>c.remove())
