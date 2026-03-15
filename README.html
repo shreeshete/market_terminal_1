@@ -1,0 +1,254 @@
+# market-terminal
+Real-time market terminal simulation
+<!DOCTYPE html>
+<html>
+<head>
+<title>Market Storm Terminal</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+background:#05070d;
+color:#00ffd5;
+font-family:monospace;
+margin:0;
+overflow:hidden;
+}
+
+header{
+background:#0a0f1c;
+padding:10px;
+border-bottom:2px solid #00ffd5;
+}
+
+h1{
+margin:0;
+font-size:22px;
+}
+
+.ticker{
+white-space:nowrap;
+overflow:hidden;
+box-sizing:border-box;
+}
+
+.ticker span{
+display:inline-block;
+padding-left:100%;
+animation:ticker 15s linear infinite;
+}
+
+@keyframes ticker{
+0%{ transform:translate(0,0); }
+100%{ transform:translate(-100%,0); }
+}
+
+.container{
+display:grid;
+grid-template-columns:1fr 1fr;
+grid-template-rows:300px 250px;
+gap:10px;
+padding:10px;
+height:calc(100vh - 70px);
+}
+
+.panel{
+background:#0b1324;
+border:1px solid #00ffd5;
+padding:10px;
+box-shadow:0 0 10px #00ffd5;
+overflow:auto;
+}
+
+.panel h3{
+margin-top:0;
+color:white;
+}
+
+#priceFeed div{
+padding:4px;
+border-bottom:1px solid #0f2a4a;
+}
+
+.alert{
+color:red;
+font-weight:bold;
+animation:blink 1s infinite;
+}
+
+@keyframes blink{
+0%{opacity:1}
+50%{opacity:0.3}
+100%{opacity:1}
+}
+
+#volatility{
+font-size:22px;
+margin-top:20px;
+}
+
+canvas{
+background:black;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Market Operations Terminal</h1>
+
+<div class="ticker">
+<span id="tickerText">Loading market stream...</span>
+</div>
+
+</header>
+
+<div class="container">
+
+<div class="panel">
+<h3>Live Price Feed</h3>
+<div id="priceFeed"></div>
+</div>
+
+<div class="panel">
+<h3>Market Chart</h3>
+<canvas id="chart"></canvas>
+</div>
+
+<div class="panel">
+<h3>Signals</h3>
+<div id="signals"></div>
+</div>
+
+<div class="panel">
+<h3>Volatility Meter</h3>
+<div id="volatility">Calm</div>
+</div>
+
+</div>
+
+<script>
+
+let price = 100;
+let volatility = 0;
+
+const feed = document.getElementById("priceFeed");
+const signals = document.getElementById("signals");
+const ticker = document.getElementById("tickerText");
+const volMeter = document.getElementById("volatility");
+
+const ctx = document.getElementById("chart");
+
+const chart = new Chart(ctx,{
+type:'line',
+data:{
+labels:[],
+datasets:[{
+label:'Market Price',
+data:[],
+borderColor:'#00ffd5',
+borderWidth:2,
+tension:0.3
+}]
+},
+options:{
+animation:false,
+plugins:{legend:{display:false}},
+scales:{x:{display:false}}
+}
+});
+
+
+function addFeed(p){
+
+const row = document.createElement("div");
+row.innerText = "Price: " + p.toFixed(2);
+
+feed.prepend(row);
+
+if(feed.childNodes.length>20)
+feed.removeChild(feed.lastChild);
+
+}
+
+function updateChart(p){
+
+chart.data.labels.push("");
+
+chart.data.datasets[0].data.push(p);
+
+if(chart.data.labels.length>40){
+chart.data.labels.shift();
+chart.data.datasets[0].data.shift();
+}
+
+chart.update();
+
+}
+
+function addSignal(text){
+
+const s = document.createElement("div");
+s.className="alert";
+s.innerText="⚠ "+text;
+
+signals.prepend(s);
+
+}
+
+function updateTicker(p){
+
+ticker.innerText=
+" AAPL "+(p+5).toFixed(2)+
+" | TSLA "+(p+20).toFixed(2)+
+" | NVDA "+(p+50).toFixed(2)+
+" | BTC "+(p*300).toFixed(0)+
+" | ETH "+(p*150).toFixed(0);
+
+}
+
+function updateVolatility(change){
+
+volatility=Math.abs(change);
+
+if(volatility>1.5){
+volMeter.innerText="HIGH VOLATILITY";
+volMeter.style.color="red";
+}
+else if(volatility>0.8){
+volMeter.innerText="MODERATE";
+volMeter.style.color="orange";
+}
+else{
+volMeter.innerText="CALM";
+volMeter.style.color="#00ffd5";
+}
+
+}
+
+function generateData(){
+
+let change=(Math.random()-0.5)*3;
+
+price+=change;
+
+addFeed(price);
+updateChart(price);
+updateTicker(price);
+updateVolatility(change);
+
+if(change>2) addSignal("Sudden Price Spike");
+if(change<-2) addSignal("Sharp Drop Detected");
+
+}
+
+setInterval(generateData,1000);
+
+</script>
+
+</body>
+</html>
